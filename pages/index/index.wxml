@@ -1,0 +1,85 @@
+<!--pages/index/index.wxml-->
+<view class="container">
+
+  <!-- 主内容区域 -->
+  <view class="content">
+    <block wx:if="{{products && products.length > 0}}">
+      <!-- 显示所有产品内容，可自由滚动浏览 -->
+      <block wx:for="{{products}}" wx:key="id">
+        <!-- 产品标题 -->
+        <view class="product-title" id="{{item.id}}" data-id="{{item.id}}">
+          <image class="title-bg" src="/images/title-bg.svg" mode="widthFix"></image>
+          <view class="title-text">【{{item.id}}】</view>
+        </view>
+
+        <!-- 产品内容 -->
+        <view class="product-content">
+          <block wx:for="{{item.sections}}" wx:for-item="section" wx:key="title" wx:for-index="sectionIndex">
+            <view class="section" id="product-{{index}}-section-{{sectionIndex}}" data-product="{{item.id}}" data-section="{{section.title}}">
+              <!-- Hide section title for special items -->
+              <view class="section-title" wx:if="{{!(item.id === '药香同源' || item.id === '优劣对比' || item.id === '保养注意')}}">
+                【{{section.title}}】
+              </view>
+              <view class="section-content">{{section.content}}</view>
+              <!-- Display image if available -->
+              <view class="section-image" wx:if="{{section.hasImage}}">
+                <image src="{{section.imagePath}}" mode="widthFix" class="content-image"></image>
+              </view>
+            </view>
+          </block>
+          <!-- 产品分割线 -->
+          <view class="product-divider"></view>
+        </view>
+      </block>
+    </block>
+    <block wx:else>
+      <view class="empty-state">
+        <view class="empty-title">欢迎使用中药材产品手册</view>
+        <view class="empty-text">请点击右下角的目录按钮，选择您要查看的产品</view>
+      </view>
+    </block>
+  </view>
+
+  <!-- 目录按钮 -->
+  <view class="directory-btn" bindtap="showDirectory">
+    <text>目录</text>
+  </view>
+
+  <!-- 目录弹窗 -->
+  <block wx:if="{{showDirectory}}">
+    <view class="directory-mask" bindtap="hideDirectory">
+      <view class="directory-container" catchtap="stopPropagation">
+        <view class="directory-header">
+          <text class="directory-title">目录</text>
+          <view class="close-btn" bindtap="hideDirectory">×</view>
+        </view>
+        <view class="directory-content">
+          <block wx:for="{{products}}" wx:key="id">
+            <view class="directory-item">
+              <!-- Special handling for the three info items -->
+              <block wx:if="{{item.id === '药香同源' || item.id === '优劣对比' || item.id === '保养注意'}}">
+                <view class="directory-product" bindtap="toggleProduct" data-id="{{item.id}}">
+                  <text>{{item.id}}</text>
+                </view>
+              </block>
+              <!-- Regular product handling -->
+              <block wx:else>
+                <view class="directory-product" bindtap="toggleProductSection" data-id="{{item.id}}">
+                  <text>{{item.id}}</text>
+                </view>
+                <!-- Dropdown for sections -->
+                <view class="directory-sections" wx:if="{{expandedSections[item.id]}}">
+                  <block wx:for="{{item.sections}}" wx:for-item="section" wx:key="title">
+                    <view class="directory-section-item" bindtap="scrollToSection" data-product="{{item.id}}" data-section="{{section.title}}">
+                      <text>{{section.title}}</text>
+                    </view>
+                  </block>
+                </view>
+              </block>
+            </view>
+          </block>
+        </view>
+      </view>
+    </view>
+  </block>
+</view>
